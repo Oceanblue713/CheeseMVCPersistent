@@ -30,7 +30,7 @@ namespace CheeseMVC.Controllers
         public IActionResult Add()
         {
             AddMenuViewModel addMenuViewModel = new AddMenuViewModel();
-            return ViewModels(addMenuViewModel);
+            return View(addMenuViewModel);
         }
 
         [HttpPost]
@@ -46,7 +46,8 @@ namespace CheeseMVC.Controllers
                 context.Menus.Add(newMenu);
                 context.SaveChanges();
 
-                return Redirect("/Menu");
+                return Redirect("/Menu/ViewMenu/"+newMenu.ID);
+                //return Redirect("/Menu");
             }
             return View(addMenuViewModel);
         }
@@ -69,7 +70,7 @@ namespace CheeseMVC.Controllers
         public IActionResult AddItem(int id)
         {
             Menu menu = context.Menus.Single(m => m.ID == id);
-            List<Cheese> cheeses = context.Cheeses.ToList();
+            IList<Cheese> cheeses = context.Cheeses.ToList();
             return View(new AddMenuItemViewModel(menu, cheeses));
         }
 
@@ -81,7 +82,9 @@ namespace CheeseMVC.Controllers
                 var cheeseID = addMenuItemViewModel.CheeseID;
                 var menuID = addMenuItemViewModel.MenuID;
 
-                IList<CheeseMenu> existingItems = context.CheeseMenus.Where(cm => cm.CheeseID == cheeseID).Where(cm => cm.MenuID == menuID).ToList();
+                IList<CheeseMenu> existingItems = context.CheeseMenus
+                    .Where(cm => cm.CheeseID == cheeseID)
+                    .Where(cm => cm.MenuID == menuID).ToList();
 
                 if (existingItems.Count == 0)
                 {
@@ -94,7 +97,7 @@ namespace CheeseMVC.Controllers
                     context.CheeseMenus.Add(menuItem);
                     context.SaveChanges();
                 }
-                return Redirect(string.Format("/Menu/ViewMenu/{0}", addMenuItemViewModel.Menu.Name));
+                return Redirect(string.Format("/Menu/ViewMenu/{0}", addMenuItemViewModel.MenuID));
             }
 
             return View(addMenuItemViewModel);
